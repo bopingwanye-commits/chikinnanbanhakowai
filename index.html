@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>あなたはどのタイプの男？16タイプ診断</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f5f5f7;
+      color: #111;
+    }
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+    }
+    h1 {
+      font-size: 1.8rem;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      text-align: center;
+      color: #555;
+      margin-bottom: 24px;
+      font-size: 0.95rem;
+    }
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px 18px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+      margin-bottom: 16px;
+    }
+    .question-index {
+      font-size: 0.85rem;
+      color: #777;
+      margin-bottom: 4px;
+    }
+    .question-text {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .option {
+      background: #f7f7fb;
+      border-radius: 12px;
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .option:hover {
+      background: #efeff9;
+    }
+    .option input[type="radio"] {
+      transform: scale(1.05);
+    }
+    .option-label-main {
+      font-size: 0.95rem;
+    }
+    .buttons {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    button {
+      flex: 1;
+      border-radius: 999px;
+      border: none;
+      padding: 10px 12px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.15s, background 0.15s;
+    }
+    button:disabled {
+      opacity: 0.4;
+      cursor: default;
+      box-shadow: none;
+      transform: none;
+    }
+    .btn-primary {
+      background: #111827;
+      color: #fff;
+      box-shadow: 0 8px 20px rgba(15,23,42,0.2);
+    }
+    .btn-primary:hover:not(:disabled) {
+      background: #0f172a;
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(15,23,42,0.25);
+    }
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+    .btn-secondary:hover:not(:disabled) {
+      background: #d1d5db;
+      transform: translateY(-1px);
+    }
+    .progress {
+      margin: 12px 0 4px;
+      font-size: 0.8rem;
+      color: #555;
+    }
+    .progress-bar-wrap {
+      width: 100%;
+      height: 6px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, #6366f1, #ec4899);
+      transition: width 0.2s;
+    }
+    .result-title {
+      font-size: 1.3rem;
+      margin-bottom: 4px;
+    }
+    .type-name {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .type-tag {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: #eef2ff;
+      color: #4338ca;
+      font-size: 0.75rem;
+      margin-bottom: 8px;
+    }
+    .type-desc {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: #444;
+    }
+    .type-extra {
+      margin-top: 12px;
+      font-size: 0.85rem;
+      color: #666;
+    }
+    .start-card {
+      text-align: center;
+    }
+    .start-card p {
+      font-size: 0.95rem;
+      color: #555;
+      margin-bottom: 12px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      background: #e0f2fe;
+      color: #0369a1;
+      margin-bottom: 6px;
+    }
+    @media (max-width: 480px) {
+      .card {
+        padding: 16px 14px;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>あなたはどのタイプの男？16タイプ診断</h1>
+    <div class="subtitle">60問すべてに回答すると、MBTI風にあなたの「男性タイプ」を診断します。</div>
+    <div id="app"></div>
+  </div>
+
+  <script>
+    // ================================
+    // 16タイプ定義
+    // ================================
+    const TYPES = [
+      { id: "cool",      name: "クール系",              tag: "感情を表に出さない冷静タイプ", description: "落ち着いていて感情をあまり表に出さず、物事を俯瞰して見るタイプです。行動は控えめでも、内側ではしっかり考えています。" },
+      { id: "party",     name: "パリピ系",              tag: "陽キャ・場の空気を動かすタイプ", description: "人と一緒にいるのが好きで、盛り上げ役になることが多いタイプです。テンション高めで、初対面ともすぐ打ち解けます。" },
+      { id: "kind",      name: "優しい系（守護者）",    tag: "気遣いと安心感の塊", description: "相手の表情や空気をよく読み、傷つけないように立ち回れるタイプ。パートナーにとって“安心できる存在”になりやすいです。" },
+      { id: "intelli",   name: "インテリ系",            tag: "思考力と知識で戦うタイプ", description: "知的好奇心が強く、情報収集や思考が好きなタイプ。議論やロジックで物事を理解したい派です。" },
+      { id: "sports",    name: "体育会系",              tag: "体力・行動力・ノリのよさ", description: "体を動かすことやチームプレーが好きなタイプ。ストイックさやタフさを持ち、行動量で周りを引っ張ります。" },
+      { id: "organic",   name: "オーガニック系",        tag: "自然体・健康志向タイプ", description: "食事や生活習慣、メンタルバランスを大事にするタイプ。無理をしすぎず、自分と周りの心地よさを重視します。" },
+      { id: "modern",    name: "モダン系",              tag: "都会感・洗練・アップデート型", description: "トレンドや情報に敏感で、ファッションやインテリアにもこだわるタイプ。自分の見せ方を理解しています。" },
+      { id: "minimal",   name: "ミニマリスト系",        tag: "少数精鋭・スッキリ思考", description: "持ち物や人間関係を必要最小限にして、集中したいことにリソースを割くタイプ。整理整頓と効率化が好きです。" },
+      { id: "artist",    name: "アーティスト系",        tag: "感性重視・世界観の人", description: "音楽・デザイン・写真など、自分の感性を表現することが好きなタイプ。独自の世界観を持っています。" },
+      { id: "honest",    name: "誠実ド真面目系",        tag: "安定感と責任感の人", description: "約束やルールを守り、真面目にコツコツ積み重ねるタイプ。信頼されやすく、長期的な関係を築きやすいです。" },
+      { id: "venture",   name: "ベンチャー系（チャレンジャー）", tag: "行動と挑戦の人", description: "新しいことに飛び込み、リスクを取ってでも前に進みたいタイプ。仕事も恋愛も“動きながら考える”ことが多いです。" },
+      { id: "tech",      name: "テクノロジーオタク系",  tag: "分析・改善・ロジック好き", description: "ガジェットやIT、数字や仕組みをいじるのが好きなタイプ。派手ではなくとも、裏側から支える力があります。" },
+      { id: "philosophy",name: "哲学者系",              tag: "内省・概念・世界観の人", description: "ひとりで考える時間が必要で、物事の意味や背景を深く掘り下げるタイプ。会話の深さが魅力になりがちです。" },
+      { id: "passive",   name: "日和見系（受動安定）",  tag: "争わず・波風立てない人", description: "自分から強く主張するより、周りに合わせて穏やかに過ごしたいタイプ。衝突を避け、平和を大事にします。" },
+      { id: "ego",       name: "承認モンスター系（俺様）", tag: "自己主張とカリスマの人", description: "自分の存在感や成果を見てほしいタイプ。扱いにくい面もあるが、カリスマ性や勢いに惹かれる人も多いです。" },
+      { id: "sensitive", name: "感受性高い察し型",      tag: "繊細さと共感力の人", description: "空気や表情から相手の気持ちを察するのが得意なタイプ。優しさゆえに疲れやすい一面もあります。" }
+    ];
+
+    // すべての質問に共通で使う5択（MBTIっぽいリッカート）
+    const COMMON_OPTIONS = [
+      { value: "1", label: "まったく当てはまらない" },
+      { value: "2", label: "あまり当てはまらない" },
+      { value: "3", label: "どちらとも言えない" },
+      { value: "4", label: "やや当てはまる" },
+      { value: "5", label: "とても当てはまる" }
+    ];
+
+    // 60問のテキスト
+    const RAW_QUESTIONS = [
+      "あなたの身長はどれくらいですか？",
+      "あなたの体重はどのくらいですか？",
+      "あなたの体型はどのように感じますか？",
+      "眉毛はどれくらいの頻度で整えますか？",
+      "髪型はどれくらいの頻度で整えていますか？",
+      "シャワー（入浴）はどの頻度でしていますか？",
+      "ヒゲの処理はどの頻度で行いますか？",
+      "ニオイ対策は普段どの程度していますか？",
+      "脱毛はどのようにしていますか？",
+      "歯のケアはどの程度行っていますか？",
+      "あなたの髪質はどう感じていますか？",
+      "あなたの肌状態は普段どの程度整っていますか？",
+      "服はどの程度お手入れしていますか？",
+      "爪は普段どのように整えていますか？",
+      "歯並びはどの程度整っていますか？",
+      "普段の服選びにどのくらいこだわりますか？",
+      "自宅のインテリアはどの程度意識していますか？",
+      "あなたの好きなファッション系統は何ですか？",
+      "最終学歴はどれですか？",
+      "物事を考える時、どのような思考方法が多いですか？",
+      "現在の収入はどのくらいですか？",
+      "あなたの職業はどの分野に属しますか？",
+      "お金を使う時、何を優先しますか？",
+      "喫煙習慣はありますか？",
+      "お酒はどのくらいの頻度で飲みますか？",
+      "継続している趣味はありますか？",
+      "スポーツ習慣はどの程度ありますか？",
+      "人との交流でどれくらいエネルギーを使いますか？",
+      "相手の小さな感情の変化にどれくらい気づけますか？",
+      "困っている人を見かけた時、どのように反応しますか？",
+      "自分の発言に謙虚さを保てていますか？",
+      "プライドが刺激された時、どの程度感情が動きますか？",
+      "会話中、自分の話す割合はどれくらいですか？",
+      "話題を振られた時、どのように返しますか？",
+      "会話で真面目に返してしまうことはどれくらいありますか？",
+      "1つの話題から次の話題へ展開できますか？",
+      "相手が嫌がっているサインにどれくらい気づけますか？",
+      "自分の欲望と相手の不快感、どちらを優先しますか？",
+      "あなたは他人を「いじる側」「いじられる側」どちらが多いですか？",
+      "状況に応じて立ち回り方を変えることができますか？",
+      "相手に対してどれくらい寛容ですか？",
+      "予期せぬ変化にどれくらい柔軟に対応できますか？",
+      "普段どれくらい笑顔を見せますか？",
+      "人間関係は特定の層に偏っていますか？",
+      "気になる人との距離はどのくらいのペースで縮めますか？",
+      "普段の連絡頻度はどの程度ですか？",
+      "他人との物理的・心理的距離をどう保ちますか？",
+      "話すスピードはどのくらいですか？",
+      "初対面の人と話す時、まず何について話しますか？",
+      "会話中、相手に質問をどの程度しますか？",
+      "相手の良いところをどの程度見つけられますか？",
+      "過去に付き合った人数は何人ですか？",
+      "感情の浮き沈みはどのくらいありますか？",
+      "気弱な振る舞いを自覚することはありますか？",
+      "初対面や人前で緊張しやすいですか？",
+      "浮気をしないためのハードルはどのくらい高いですか？",
+      "SNSはどれくらいの頻度で更新しますか？",
+      "将来の目標やキャリアプランはどのくらい明確ですか？",
+      "仕事に対してどの程度やりがいを感じていますか？",
+      "恋愛やパートナーシップをどれくらい大事にしていますか？"
+    ];
+
+    // RAW_QUESTIONS から QUESTIONS オブジェクトを生成
+    const QUESTIONS = RAW_QUESTIONS.map((text, index) => ({
+      id: "q" + (index + 1),
+      text,
+      options: COMMON_OPTIONS
+      // 本気でやるときはここに weights を追加する
+    }));
+
+    let currentIndex = -1; // -1: スタート画面
+    const answers = {};    // { questionId: "1"〜"5" }
+
+    function render() {
+      const appEl = document.getElementById("app");
+      if (!appEl) return;
+      appEl.innerHTML = "";
+
+      if (currentIndex === -1) {
+        renderStart(appEl);
+      } else if (currentIndex >= 0 && currentIndex < QUESTIONS.length) {
+        renderQuestion(appEl);
+      } else {
+        renderResult(appEl);
+      }
+    }
+
+    function renderStart(appEl) {
+      const card = document.createElement("div");
+      card.className = "card start-card";
+      card.innerHTML = `
+        <div class="badge">MBTI風・16タイプ分類</div>
+        <p>全${QUESTIONS.length}問の質問に答えると、あなたがどの「男性16タイプ」に近いか診断します。</p>
+        <p>深く考えずに、ふだんの自分に一番近い選択肢を選んでください。</p>
+      `;
+      const btn = document.createElement("button");
+      btn.className = "btn-primary";
+      btn.textContent = "診断を始める";
+      btn.style.width = "100%";
+      btn.onclick = () => {
+        currentIndex = 0;
+        render();
+      };
+      card.appendChild(btn);
+      appEl.appendChild(card);
+    }
+
+    function renderQuestion(appEl) {
+      const q = QUESTIONS[currentIndex];
+      const total = QUESTIONS.length;
+      const selectedValue = answers[q.id] || null;
+
+      const card = document.createElement("div");
+      card.className = "card";
+
+      const progressText = document.createElement("div");
+      progressText.className = "progress";
+      progressText.textContent = `質問 ${currentIndex + 1} / ${total}`;
+      card.appendChild(progressText);
+
+      const barWrap = document.createElement("div");
+      barWrap.className = "progress-bar-wrap";
+      const bar = document.createElement("div");
+      bar.className = "progress-bar";
+      bar.style.width = `${(currentIndex / total) * 100}%`;
+      barWrap.appendChild(bar);
+      card.appendChild(barWrap);
+
+      const qIndex = document.createElement("div");
+      qIndex.className = "question-index";
+      qIndex.textContent = "直感で一番近いものを選んでください";
+      card.appendChild(qIndex);
+
+      const qText = document.createElement("div");
+      qText.className = "question-text";
+      qText.textContent = q.text;
+      card.appendChild(qText);
+
+      const optionsDiv = document.createElement("div");
+      optionsDiv.className = "options";
+
+      q.options.forEach(opt => {
+        const label = document.createElement("label");
+        label.className = "option";
+
+        const input = document.createElement("input");
+        input.type = "radio";
+        input.name = q.id;
+        input.value = opt.value;
+        if (opt.value === selectedValue) {
+          input.checked = true;
+          label.style.borderColor = "#6366f1";
+          label.style.background = "#eef2ff";
+        }
+        input.addEventListener("change", () => {
+          answers[q.id] = opt.value;
+          render();
+        });
+
+        const spanMain = document.createElement("span");
+        spanMain.className = "option-label-main";
+        spanMain.textContent = opt.label;
+
+        label.appendChild(input);
+        label.appendChild(spanMain);
+        optionsDiv.appendChild(label);
+      });
+
+      card.appendChild(optionsDiv);
+
+      const btns = document.createElement("div");
+      btns.className = "buttons";
+
+      const backBtn = document.createElement("button");
+      backBtn.className = "btn-secondary";
+      backBtn.textContent = "戻る";
+      backBtn.disabled = currentIndex === 0;
+      backBtn.onclick = () => {
+        if (currentIndex > 0) {
+          currentIndex -= 1;
+          render();
+        }
+      };
+
+      const nextBtn = document.createElement("button");
+      nextBtn.className = "btn-primary";
+      nextBtn.textContent = currentIndex === total - 1 ? "結果を見る" : "次へ";
+      nextBtn.disabled = !selectedValue;
+      nextBtn.onclick = () => {
+        if (!answers[q.id]) return;
+        if (currentIndex === total - 1) {
+          currentIndex = total; // 結果画面へ
+        } else {
+          currentIndex += 1;
+        }
+        render();
+      };
+
+      btns.appendChild(backBtn);
+      btns.appendChild(nextBtn);
+      card.appendChild(btns);
+
+      appEl.appendChild(card);
+    }
+
+    function calculateScores() {
+      // シンプルなデフォルトロジック：
+      // 質問ごとに「担当タイプ」を1つ割り当て、
+      // 回答（1〜5）をそのタイプのスコアに加算する。
+      const scores = {};
+      TYPES.forEach(t => { scores[t.id] = 0; });
+
+      QUESTIONS.forEach((q, index) => {
+        const v = parseInt(answers[q.id] || "0", 10);
+        if (!v) return;
+        const typeIndex = index % TYPES.length; // 0〜15
+        const typeId = TYPES[typeIndex].id;
+        scores[typeId] += v;
+      });
+
+      return scores;
+    }
+
+    function renderResult(appEl) {
+      const scores = calculateScores();
+      const entries = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+      const [topId, topScore] = entries[0] || [null, 0];
+      const topType = TYPES.find(t => t.id === topId) || TYPES[0];
+
+      const card = document.createElement("div");
+      card.className = "card";
+
+      const title = document.createElement("div");
+      title.className = "result-title";
+      title.textContent = "あなたに一番近いタイプは…";
+      card.appendChild(title);
+
+      const name = document.createElement("div");
+      name.className = "type-name";
+      name.textContent = topType.name;
+      card.appendChild(name);
+
+      const tag = document.createElement("div");
+      tag.className = "type-tag";
+      tag.textContent = topType.tag;
+      card.appendChild(tag);
+
+      const desc = document.createElement("div");
+      desc.className = "type-desc";
+      desc.textContent = topType.description;
+      card.appendChild(desc);
+
+      const extra = document.createElement("div");
+      extra.className = "type-extra";
+      extra.innerHTML = `
+        このロジックはデモ用です。<br>
+        本番では、エクセルで作った「質問×回答×タイプの重みづけ」を、<br>
+        JavaScript 内の <code>calculateScores()</code> や <code>QUESTIONS</code> に反映させれば、<br>
+        より精密な診断にアップデートできます。
+      `;
+      card.appendChild(extra);
+
+      const btns = document.createElement("div");
+      btns.className = "buttons";
+      const retryBtn = document.createElement("button");
+      retryBtn.className = "btn-secondary";
+      retryBtn.textContent = "もう一度診断する";
+      retryBtn.onclick = () => {
+        Object.keys(answers).forEach(k => delete answers[k]);
+        currentIndex = -1;
+        render();
+      };
+      btns.appendChild(retryBtn);
+      card.appendChild(btns);
+
+      appEl.appendChild(card);
+    }
+
+    // DOM 準備ができてからレンダリング（GitHub Pages でも安全）
+    window.addEventListener("DOMContentLoaded", () => {
+      currentIndex = -1;
+      render();
+    });
+  </script>
+</body>
+</html>
